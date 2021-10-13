@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class User {
   int phoneNum;
   String token;
