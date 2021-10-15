@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:phone_tap/app/homepage.dart';
 import 'package:phone_tap/sign/login.dart';
 import 'package:phone_tap/sign/register.dart';
 
@@ -13,7 +14,8 @@ class PhoneTap extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(title: 'PhoneTap', initialRoute: "signLogin", routes: {
       "signLogin": (context) => const SignLogin(),
-      "signRegister": (context) => const SignRegister()
+      "signRegister": (context) => const SignRegister(),
+      HomePage.routeName: (context) => const HomePage()
     });
   }
 }

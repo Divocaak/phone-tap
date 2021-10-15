@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:phone_tap/objects/user.dart';
 import 'package:phone_tap/sign/widgets.dart';
+import 'package:phone_tap/remote/sign.dart';
 
 class SignLogin extends StatefulWidget {
   const SignLogin({Key? key}) : super(key: key);
@@ -28,7 +30,34 @@ class _SignLoginState extends State<SignLogin> {
                     () => Navigator.of(context).pushNamed("signRegister"),
                     "register"),
                 SignWidgets.formButton(() {
-                  debugPrint(passController.text);
+                  if (phoneController.text.isNotEmpty &&
+                      passController.text.isNotEmpty) {
+                    Future<User> response = RemoteSign.login(
+                        phoneController.text, passController.text);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: FutureBuilder(
+                            future: response,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                Future.delayed(
+                                    Duration.zero,
+                                    () => Navigator.of(context).pushNamed(
+                                        "homePage",
+                                        arguments: response));
+                              } else if (snapshot.hasError) {
+                                return const Text(
+                                    "Někde se stala chyba, zkuste to později.");
+                              }
+
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            })));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text('Vyplňte prosím obě pole'),
+                        action: SnackBarAction(
+                            label: 'Rozumím', onPressed: () {})));
+                  }
                 }, "login")
               ])
             ])));

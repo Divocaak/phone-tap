@@ -1,3 +1,3 @@
 export 'package:phone_tap/objects/user.dart';
 
-String remoteUrl = "http://localhost/phone_tap/server/";
+String remoteUrl = "http://127.0.0.1/phone_tap/server/";

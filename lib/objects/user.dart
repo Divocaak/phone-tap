@@ -1,12 +1,12 @@
 class User {
-  int phoneNum;
+  String username;
   String token;
 
-  User(this.phoneNum, this.token);
+  User(this.username, this.token);
 
   factory User.fromJson(Map<dynamic, dynamic> json) {
-    return User(int.parse(json["phoneNum"]), json["token"]);
+    return User(json["phone"], json["token"]);
   }
 
-  Map<String, dynamic> toJson() => {"phoneNum": phoneNum, "token": token};
+  Map<String, dynamic> toJson() => {"phone": username, "token": token};
 }
