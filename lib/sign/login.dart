@@ -1,14 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:phone_tap/objects/user.dart';
 import 'package:phone_tap/sign/widgets.dart';
 import 'package:phone_tap/remote/sign.dart';
 
 class SignLogin extends StatefulWidget {
-  const SignLogin({Key? key}) : super(key: key);
+  const SignLogin({Key key}) : super(key: key);
 
   @override
   _SignLoginState createState() => _SignLoginState();
 }
+
+Future<User> response;
 
 class _SignLoginState extends State<SignLogin> {
   TextEditingController phoneController = TextEditingController();
@@ -32,8 +35,9 @@ class _SignLoginState extends State<SignLogin> {
                 SignWidgets.formButton(() {
                   if (phoneController.text.isNotEmpty &&
                       passController.text.isNotEmpty) {
-                    Future<User> response = RemoteSign.login(
+                    response = RemoteSign.login(
                         phoneController.text, passController.text);
+
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: FutureBuilder(
                             future: response,
@@ -43,7 +47,7 @@ class _SignLoginState extends State<SignLogin> {
                                     Duration.zero,
                                     () => Navigator.of(context).pushNamed(
                                         "homePage",
-                                        arguments: response));
+                                        arguments: snapshot.data));
                               } else if (snapshot.hasError) {
                                 return const Text(
                                     "Někde se stala chyba, zkuste to později.");

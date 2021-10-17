@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phone_tap/objects/user.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({Key key}) : super(key: key);
   static const String routeName = "homePage";
 
   @override
@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late User loggedUser;
+  User loggedUser;
 
   @override
   Widget build(BuildContext context) {

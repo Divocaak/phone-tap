@@ -4,7 +4,7 @@ import 'package:phone_tap/remote/sign.dart';
 import 'dart:math';
 
 class SignRegister extends StatefulWidget {
-  const SignRegister({Key? key}) : super(key: key);
+  const SignRegister({Key key}) : super(key: key);
 
   @override
   _SignRegisterState createState() => _SignRegisterState();
