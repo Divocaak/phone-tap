@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phone_tap/objects/user.dart';
 import 'package:call_log/call_log.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -29,15 +30,32 @@ class _HomePageState extends State<HomePage> {
                     itemBuilder: (context, i) {
                       CallLogEntry entry = snapshot.data[i];
                       return Row(children: [
-                        if (entry.callType == CallType.incoming)
-                          const Icon(Icons.call_received, color: Colors.green)
-                        else if (entry.callType == CallType.outgoing)
-                          const Icon(Icons.call_made, color: Colors.blue)
-                        else
-                          const Icon(Icons.phone, color: Colors.red),
-                        Text(entry.name),
-                        Text(entry.number),
-                        Text(entry.duration.toString())
+                        callIcon(entry),
+                        Column(children: [
+                          Row(children: [
+                            Row(children: [
+                              const Icon(Icons.calendar_today),
+                              Text(DateFormat("EEE M/d/y – HH:mm").format(
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                      entry.timestamp)))
+                            ]),
+                            Row(children: [
+                              const Icon(Icons.timer),
+                              Text(printDuration(
+                                  Duration(seconds: entry.duration)))
+                            ])
+                          ]),
+                          Row(children: [
+                            Row(children: [
+                              const Icon(Icons.person),
+                              Text(entry.name)
+                            ]),
+                            Row(children: [
+                              const Icon(Icons.phone),
+                              Text(entry.number)
+                            ])
+                          ]),
+                        ])
                       ]);
                     });
               } else if (snapshot.hasError) {
@@ -46,6 +64,27 @@ class _HomePageState extends State<HomePage> {
                 return const Center(child: Text("protokol hovorů je prázdný"));
               }
             }));
+  }
+
+  Icon callIcon(CallLogEntry entry) {
+    if (entry.callType == CallType.incoming) {
+      return const Icon(Icons.call_received, color: Colors.green);
+    } else if (entry.callType == CallType.outgoing) {
+      return const Icon(Icons.call_made, color: Colors.blue);
+    } else {
+      return const Icon(Icons.phone, color: Colors.red);
+    }
+  }
+
+  String printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return twoDigits(duration.inHours) +
+        ":" +
+        twoDigitMinutes +
+        ":" +
+        twoDigitSeconds;
   }
 
   Future<List<CallLogEntry>> getEntries() async {
@@ -68,16 +107,19 @@ class _HomePageState extends State<HomePage> {
         name: "test",
         number: "123456789",
         duration: 56,
+        timestamp: 976597,
         callType: CallType.incoming));
     entries.add(CallLogEntry(
         name: "test 1",
         number: "987654321",
         duration: 142,
+        timestamp: 347967,
         callType: CallType.outgoing));
     entries.add(CallLogEntry(
         name: "test 2",
         number: "771301042",
         duration: 9,
+        timestamp: 80769,
         callType: CallType.incoming));
     return entries;
   }
