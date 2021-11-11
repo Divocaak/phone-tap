@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phone_tap/objects/user.dart';
+import 'package:phone_tap/objects/contact.dart';
+import 'package:phone_tap/general.dart';
 import 'package:call_log/call_log.dart';
 import 'package:intl/intl.dart';
 
@@ -33,28 +35,17 @@ class _HomePageState extends State<HomePage> {
                         callIcon(entry),
                         Column(children: [
                           Row(children: [
-                            Row(children: [
-                              const Icon(Icons.calendar_today),
-                              Text(DateFormat("EEE M/d/y – HH:mm").format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                      entry.timestamp)))
-                            ]),
-                            Row(children: [
-                              const Icon(Icons.timer),
-                              Text(printDuration(
-                                  Duration(seconds: entry.duration)))
-                            ])
+                            General.iconText(
+                                DateFormat("EEE M/d/y – HH:mm").format(
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        entry.timestamp)),
+                                Icons.calendar_today),
+                            General.iconText(
+                                printDuration(
+                                    Duration(seconds: entry.duration)),
+                                Icons.timer)
                           ]),
-                          Row(children: [
-                            Row(children: [
-                              const Icon(Icons.person),
-                              Text(entry.name)
-                            ]),
-                            Row(children: [
-                              const Icon(Icons.phone),
-                              Text(entry.number)
-                            ])
-                          ]),
+                          Contact.contactDisplay(entry.number)
                         ])
                       ]);
                     });

@@ -2,9 +2,10 @@ import 'dart:async';
 import "dart:convert";
 import 'package:http/http.dart';
 import "package:phone_tap/general.dart";
+import "package:phone_tap/objects/user.dart";
 
 class RemoteSign {
-  static String url = remoteUrl;
+  static String url = remoteUrl + "sign/";
 
   static Future<String> register(
       String phone, String pass, String token) async {
@@ -30,8 +31,7 @@ class RemoteSign {
             url + "login.php?phone=" + phone + "&&password=" + password)),
         headers: {"Accept": "application/json;charset=UTF-8"});
     if (response.statusCode == 200) {
-      final Map parsed = jsonDecode(response.body);
-      return User.fromJson(parsed);
+      return User.fromJson(jsonDecode(response.body));
     } else {
       throw Exception("Can't login user");
     }
