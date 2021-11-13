@@ -22,10 +22,24 @@ class Contact {
   // for future use
   Map<String, dynamic> toJson() =>
       {"name": name, "number": number, "category": category};
+}
 
-  static Widget contactDisplay(String numberInput) {
-    Future<Contact> contact = RemoteLogs.getContact(numberInput);
+class ContactWidget extends StatefulWidget {
+  const ContactWidget(this.numberInput, this.userId, {Key key})
+      : super(key: key);
 
+  final String numberInput;
+  final int userId;
+
+  @override
+  _ContactWidgetState createState() => _ContactWidgetState();
+}
+
+class _ContactWidgetState extends State<ContactWidget> {
+  Future<Contact> contact;
+  @override
+  Widget build(BuildContext context) {
+    contact = getData();
     return FutureBuilder<Contact>(
         future: contact,
         builder: (context, snapshot) {
@@ -38,11 +52,71 @@ class Contact {
             ]);
           } else if (!snapshot.hasData) {
             return TextButton(
-                onPressed: () => print("save contact"),
-                child: const Text("uložit kontakt"));
+                onPressed: () => showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                          title: const Text("Upozornění"),
+                          content: const Text("Jak chcete kontakt uložit?"),
+                          actions: [
+                            TextButton(
+                                child: const Text("Osobní"),
+                                onPressed: () => saveContact(
+                                    "name",
+                                    widget.userId,
+                                    widget.numberInput,
+                                    1,
+                                    this,
+                                    getData())),
+                            TextButton(
+                                child: const Text("Prodávající"),
+                                onPressed: () => saveContact(
+                                    "name",
+                                    widget.userId,
+                                    widget.numberInput,
+                                    2,
+                                    this,
+                                    getData())),
+                            TextButton(
+                                child: const Text("Kupující"),
+                                onPressed: () => saveContact(
+                                    "name",
+                                    widget.userId,
+                                    widget.numberInput,
+                                    3,
+                                    this,
+                                    getData()))
+                          ]);
+                    }),
+                child: Text("uložit kontakt: " + widget.numberInput));
           } else {
             return const Center(child: Text("error"));
           }
         });
+  }
+
+  getData() {
+    contact = RemoteLogs.getContact(widget.numberInput);
+  }
+
+  static void saveContact(String name, int userId, String contactNum,
+      int categoryId, State cw, Function getDataFunction) {
+    Navigator.of(cw.context).pop();
+    Future<String> response = RemoteLogs.setContact(
+        name, userId.toString(), contactNum, categoryId.toString());
+
+    ScaffoldMessenger.of(cw.context).showSnackBar(SnackBar(
+        content: FutureBuilder(
+            future: response,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                cw.setState(() => getDataFunction());
+                return Text(snapshot.data.toString());
+              } else if (snapshot.hasError) {
+                return const Text("Někde se stala chyba, zkuste to později.");
+              }
+
+              return const Center(child: CircularProgressIndicator());
+            })));
   }
 }

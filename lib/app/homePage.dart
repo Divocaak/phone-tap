@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
                                     Duration(seconds: entry.duration)),
                                 Icons.timer)
                           ]),
-                          Contact.contactDisplay(entry.number)
+                          ContactWidget(entry.number, loggedUser.id)
                         ])
                       ]);
                     });
