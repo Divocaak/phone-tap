@@ -3,17 +3,24 @@ import 'package:phone_tap/objects/contact.dart';
 import 'package:flutter/material.dart';
 import 'package:phone_tap/general.dart';
 import 'package:intl/intl.dart';
+import 'package:phone_tap/remote/logs.dart';
 
 class Log {
   DateTime dateStart;
   DateTime dateEnd;
   Contact contact;
 
-  Log(this.dateStart, this.dateEnd, this.contact);
+  Log(this.dateStart, this.dateEnd, {this.contact});
 
   factory Log.fromJson(Map<dynamic, dynamic> json) {
-    return Log(DateTime.parse(json["dateStart"]),
-        DateTime.parse(json["dateEnd"]), Contact.fromJson(json["category"]));
+    return Log(
+        DateTime.parse(json["dateStart"]), DateTime.parse(json["dateEnd"]),
+        contact: Contact.fromJson(json["contact"]));
+  }
+
+  factory Log.fromCallLogEntry(CallLogEntry entry) {
+    return Log(DateTime.fromMillisecondsSinceEpoch(entry.timestamp),
+        DateTime.fromMillisecondsSinceEpoch(entry.timestamp + entry.duration));
   }
 
   // for future use
@@ -32,36 +39,62 @@ class Log {
         ":" +
         twoDigitSeconds;
   }
+
+  String getStart() {
+    return DateFormat("EEE M/d/y – HH:mm").format(dateStart);
+  }
 }
 
 class LogWidget extends StatefulWidget {
-  const LogWidget(this.entry, {Key key}) : super(key: key);
+  const LogWidget(this.entry, this.userId, {Key key}) : super(key: key);
 
   final CallLogEntry entry;
+  final int userId;
 
   @override
   _LogWidgetState createState() => _LogWidgetState();
 }
 
 class _LogWidgetState extends State<LogWidget> {
-  TextEditingController inputNameController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
+    Future<Log> log = RemoteLog.getLog(
+        widget.entry.number,
+        widget.userId,
+        DateFormat("y-M-d HH:mm:ss").format(
+            DateTime.fromMillisecondsSinceEpoch(widget.entry.timestamp)));
+    return FutureBuilder<Log>(
+        future: log,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              return logDisplay(snapshot.data, true);
+            } else {
+              return logDisplay(Log.fromCallLogEntry(widget.entry), false);
+            }
+          } else {
+            return const Center(child: Text("někde se stala chyba"));
+          }
+        });
+  }
+
+  Widget logDisplay(Log log, bool fromDb) {
     return Row(children: [
       callIcon(widget.entry),
+      isSavedIcon(widget.entry, fromDb),
       Column(children: [
         Row(children: [
-          General.iconText(
-              DateFormat("EEE M/d/y – HH:mm").format(
-                  DateTime.fromMillisecondsSinceEpoch(widget.entry.timestamp)),
-              Icons.calendar_today),
-          General.iconText(
-              printDuration(Duration(seconds: widget.entry.duration)),
-              Icons.timer)
-        ])
+          General.iconText(log.getStart(), Icons.calendar_today),
+          General.iconText(log.getDuration(), Icons.timer)
+        ]),
+        ContactWidget(widget.entry.number, widget.userId)
       ])
     ]);
+  }
+
+  Icon isSavedIcon(CallLogEntry entry, bool fromDb) {
+    return Icon(fromDb ? Icons.check : Icons.cancel,
+        color: fromDb ? Colors.green : Colors.red);
   }
 
   Icon callIcon(CallLogEntry entry) {

@@ -2,37 +2,23 @@ import 'dart:async';
 import "dart:convert";
 import 'package:http/http.dart';
 import "package:phone_tap/general.dart";
-import 'package:phone_tap/objects/contact.dart';
+import 'package:phone_tap/objects/log.dart';
 
-class RemoteLogs {
+class RemoteLog {
   static String url = remoteUrl + "logs/";
 
-  static Future<Contact> getContact(String number) async {
-    final Response response = await get(
-        Uri.parse(Uri.encodeFull(url + "getContact.php?number=" + number)),
-        headers: {"Accept": "application/json;charset=UTF-8"});
-    if (response.statusCode == 200) {
-      return Contact.fromJson(jsonDecode(response.body));
-    } else {
-      return null;
-    }
-  }
-
-  static Future<String> setContact(
-      String name, String userId, String contactNum, String categoryId) async {
+  static Future<Log> getLog(String number, int userId, String dateStart) async {
     final Response response = await get(
         Uri.parse(Uri.encodeFull(url +
-            "setContact.php?userId=" +
-            userId +
-            "&contactNum=" +
-            contactNum +
-            "&categoryId=" +
-            categoryId +
-            "&name=" +
-            name)),
+            "getLog.php?number=" +
+            number +
+            "&userId=" +
+            userId.toString() +
+            "&dateStart=" +
+            dateStart.toString())),
         headers: {"Accept": "application/json;charset=UTF-8"});
     if (response.statusCode == 200) {
-      return response.body;
+      return Log.fromJson(jsonDecode(response.body));
     } else {
       return null;
     }

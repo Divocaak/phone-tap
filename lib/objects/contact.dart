@@ -1,6 +1,6 @@
 import 'package:call_log/call_log.dart';
 import 'package:flutter/material.dart';
-import 'package:phone_tap/remote/logs.dart';
+import 'package:phone_tap/remote/contacts.dart';
 import 'package:phone_tap/general.dart';
 
 class Contact {
@@ -40,7 +40,8 @@ class _ContactWidgetState extends State<ContactWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Future<Contact> contact = RemoteLogs.getContact(widget.numberInput);
+    Future<Contact> contact =
+        RemoteContact.getContact(widget.numberInput, widget.userId);
     return FutureBuilder<Contact>(
         future: contact,
         builder: (context, snapshot) {
@@ -96,7 +97,7 @@ class _ContactWidgetState extends State<ContactWidget> {
   static void saveContact(
       String name, int userId, String contactNum, int categoryId, State cw) {
     Navigator.of(cw.context).pop();
-    Future<String> response = RemoteLogs.setContact(
+    Future<String> response = RemoteContact.setContact(
         name, userId.toString(), contactNum, categoryId.toString());
 
     ScaffoldMessenger.of(cw.context).showSnackBar(SnackBar(

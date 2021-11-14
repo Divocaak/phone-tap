@@ -30,10 +30,8 @@ class _HomePageState extends State<HomePage> {
               if (snapshot.hasData) {
                 return ListView.builder(
                     itemCount: snapshot.data.length,
-                    itemBuilder: (context, i) {
-                      CallLogEntry entry = snapshot.data[i];
-                      return LogWidget(entry);
-                    });
+                    itemBuilder: (context, i) =>
+                        LogWidget(snapshot.data[i], loggedUser.id));
               } else if (snapshot.hasError) {
                 return const Center(child: Text("někde se stala chyba"));
               } else {
