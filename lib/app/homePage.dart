@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phone_tap/objects/log.dart';
 import 'package:phone_tap/objects/user.dart';
 import 'package:phone_tap/objects/contact.dart';
 import 'package:phone_tap/general.dart';
@@ -31,23 +32,7 @@ class _HomePageState extends State<HomePage> {
                     itemCount: snapshot.data.length,
                     itemBuilder: (context, i) {
                       CallLogEntry entry = snapshot.data[i];
-                      return Row(children: [
-                        callIcon(entry),
-                        Column(children: [
-                          Row(children: [
-                            General.iconText(
-                                DateFormat("EEE M/d/y – HH:mm").format(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        entry.timestamp)),
-                                Icons.calendar_today),
-                            General.iconText(
-                                printDuration(
-                                    Duration(seconds: entry.duration)),
-                                Icons.timer)
-                          ]),
-                          ContactWidget(entry.number, loggedUser.id)
-                        ])
-                      ]);
+                      return LogWidget(entry);
                     });
               } else if (snapshot.hasError) {
                 return const Center(child: Text("někde se stala chyba"));
@@ -55,27 +40,6 @@ class _HomePageState extends State<HomePage> {
                 return const Center(child: Text("protokol hovorů je prázdný"));
               }
             }));
-  }
-
-  Icon callIcon(CallLogEntry entry) {
-    if (entry.callType == CallType.incoming) {
-      return const Icon(Icons.call_received, color: Colors.green);
-    } else if (entry.callType == CallType.outgoing) {
-      return const Icon(Icons.call_made, color: Colors.blue);
-    } else {
-      return const Icon(Icons.phone, color: Colors.red);
-    }
-  }
-
-  String printDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return twoDigits(duration.inHours) +
-        ":" +
-        twoDigitMinutes +
-        ":" +
-        twoDigitSeconds;
   }
 
   Future<List<CallLogEntry>> getEntries() async {

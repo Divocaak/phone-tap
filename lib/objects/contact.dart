@@ -36,10 +36,11 @@ class ContactWidget extends StatefulWidget {
 }
 
 class _ContactWidgetState extends State<ContactWidget> {
-  Future<Contact> contact;
+  TextEditingController inputNameController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    contact = getData();
+    Future<Contact> contact = RemoteLogs.getContact(widget.numberInput);
     return FutureBuilder<Contact>(
         future: contact,
         builder: (context, snapshot) {
@@ -56,36 +57,33 @@ class _ContactWidgetState extends State<ContactWidget> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                          title: const Text("Upozornění"),
-                          content: const Text("Jak chcete kontakt uložit?"),
+                          title: const Text("Jak chcete kontakt uložit?"),
+                          content: TextField(controller: inputNameController),
                           actions: [
                             TextButton(
                                 child: const Text("Osobní"),
                                 onPressed: () => saveContact(
-                                    "name",
+                                    inputNameController.text,
                                     widget.userId,
                                     widget.numberInput,
                                     1,
-                                    this,
-                                    getData())),
+                                    this)),
                             TextButton(
                                 child: const Text("Prodávající"),
                                 onPressed: () => saveContact(
-                                    "name",
+                                    inputNameController.text,
                                     widget.userId,
                                     widget.numberInput,
                                     2,
-                                    this,
-                                    getData())),
+                                    this)),
                             TextButton(
                                 child: const Text("Kupující"),
                                 onPressed: () => saveContact(
-                                    "name",
+                                    inputNameController.text,
                                     widget.userId,
                                     widget.numberInput,
                                     3,
-                                    this,
-                                    getData()))
+                                    this))
                           ]);
                     }),
                 child: Text("uložit kontakt: " + widget.numberInput));
@@ -95,12 +93,8 @@ class _ContactWidgetState extends State<ContactWidget> {
         });
   }
 
-  getData() {
-    contact = RemoteLogs.getContact(widget.numberInput);
-  }
-
-  static void saveContact(String name, int userId, String contactNum,
-      int categoryId, State cw, Function getDataFunction) {
+  static void saveContact(
+      String name, int userId, String contactNum, int categoryId, State cw) {
     Navigator.of(cw.context).pop();
     Future<String> response = RemoteLogs.setContact(
         name, userId.toString(), contactNum, categoryId.toString());
@@ -110,7 +104,9 @@ class _ContactWidgetState extends State<ContactWidget> {
             future: response,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                cw.setState(() => getDataFunction());
+                Future.delayed(Duration.zero, () async {
+                  cw.setState(() {});
+                });
                 return Text(snapshot.data.toString());
               } else if (snapshot.hasError) {
                 return const Text("Někde se stala chyba, zkuste to později.");
